@@ -14,35 +14,38 @@ int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 	dlistint_t *current;
 	unsigned int p;
 
-	if (*head == NULL) /* Check if the list is empty */
+	if (head == NULL || *head == NULL)
 		return (-1);
 
-	current = *head;							   /* Start from the head node */
-	for (p = 0; p < index && current != NULL; p++) /* Traverse to the target node */
+	current = *head;			/* Start from the head */
+	for (p = 0; p < index; p++) /* Traverse to the target node */
 	{
+		if (current == NULL)
+			return (-1);
 		current = current->next;
 	}
 
 	if (current == NULL) /* If the index is out of bounds */
 		return (-1);
 
-	/* Deleting the first node (head node) */
-	if (current == *head)
+	/* Update the previous node's next pointer */
+	if (current->prev != NULL)
 	{
-		*head = current->next; /* Update head pointer */
-		if (*head != NULL)
-			(*head)->prev = NULL; /* Update the prev pointer of the new head */
+		dlistint_t *prev_node = current->prev;
+		prev_node->next = current->next;
 	}
-	else
+	else /* If deleting the head node */
 	{
-		/* Update the prev pointer of the next node */
-		if (current->next)
-			current->next->prev = current->prev;
-		/* Update the next pointer of the prev node */
-		if (current->prev)
-			current->prev->next = current->next;
+		*head = current->next;
 	}
 
-	free(current); /* Free the memory of the deleted node */
+	/* Update the next node's prev pointer */
+	if (current->next != NULL)
+	{
+		dlistint_t *next_node = current->next;
+		next_node->prev = current->prev;
+	}
+
+	free(current); /* Free the node */
 	return (1);
 }
